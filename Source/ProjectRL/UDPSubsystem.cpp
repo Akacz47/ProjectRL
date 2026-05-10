@@ -70,55 +70,55 @@ void UUDPSubsystem::CleanUpSockets()
     }
 }
 
-bool UUDPSubsystem::SendData(FString& Message)
-{
-    if (!SendSocket) return false;
-
-    TCHAR* SerializedChar = Message.GetCharArray().GetData();
-    int32 Size = FCString::Strlen(SerializedChar);
-    int32 Sent = 0;
-
-    bool bSuccess = SendSocket->SendTo(
-        (uint8*)TCHAR_TO_UTF8(SerializedChar),
-        Size,
-        Sent,
-        *RemoteEndpoint.ToInternetAddr()
-    );
-
-    if (!bSuccess)
-    {
-        UE_LOG(LogTemp, Error, TEXT("B³¹d wysy³ania pakietu UDP. Sent: %d, Size: %d"), Sent, Size);
-    }
-    else if (Sent != Size)
-    {
-        UE_LOG(LogTemp, Warning, TEXT("Wys³ano tylko czêœæ danych! Sent: %d, Size: %d"), Sent, Size);
-    }
-
-    return bSuccess;
-}
-
-bool UUDPSubsystem::ReceiveData(FString& OutMessage)
-{
-    if (!ListenSocket) return false;
-
-    uint32 Size = 0;
-    if (ListenSocket->HasPendingData(Size))
-    {
-        TArray<uint8> Buffer;
-        Buffer.SetNumUninitialized(Size);
-        int32 BytesRead = 0;
-        if (ListenSocket->Recv(Buffer.GetData(), Buffer.Num(), BytesRead))
-        {
-            if (BytesRead > 0)
-            {
-                Buffer.Add(0);
-                OutMessage = FString(UTF8_TO_TCHAR(reinterpret_cast<const char*>(Buffer.GetData())));
-                return true;
-            }
-        }
-    }
-    return false;
-}
+//bool UUDPSubsystem::SendData(FString& Message)
+//{
+//    if (!SendSocket) return false;
+//
+//    TCHAR* SerializedChar = Message.GetCharArray().GetData();
+//    int32 Size = FCString::Strlen(SerializedChar);
+//    int32 Sent = 0;
+//
+//    bool bSuccess = SendSocket->SendTo(
+//        (uint8*)TCHAR_TO_UTF8(SerializedChar),
+//        Size,
+//        Sent,
+//        *RemoteEndpoint.ToInternetAddr()
+//    );
+//
+//    if (!bSuccess)
+//    {
+//        UE_LOG(LogTemp, Error, TEXT("B³¹d wysy³ania pakietu UDP. Sent: %d, Size: %d"), Sent, Size);
+//    }
+//    else if (Sent != Size)
+//    {
+//        UE_LOG(LogTemp, Warning, TEXT("Wys³ano tylko czêœæ danych! Sent: %d, Size: %d"), Sent, Size);
+//    }
+//
+//    return bSuccess;
+//}
+//
+//bool UUDPSubsystem::ReceiveData(FString& OutMessage)
+//{
+//    if (!ListenSocket) return false;
+//
+//    uint32 Size = 0;
+//    if (ListenSocket->HasPendingData(Size))
+//    {
+//        TArray<uint8> Buffer;
+//        Buffer.SetNumUninitialized(Size);
+//        int32 BytesRead = 0;
+//        if (ListenSocket->Recv(Buffer.GetData(), Buffer.Num(), BytesRead))
+//        {
+//            if (BytesRead > 0)
+//            {
+//                Buffer.Add(0);
+//                OutMessage = FString(UTF8_TO_TCHAR(reinterpret_cast<const char*>(Buffer.GetData())));
+//                return true;
+//            }
+//        }
+//    }
+//    return false;
+//}
 
 
 

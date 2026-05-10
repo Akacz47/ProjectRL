@@ -24,9 +24,9 @@ struct FUDPStatePacket
     float VY;
     float BulletDistance;
     float TargetDistance;
-    float ShootCooldown;
+    //float ShootCooldown;
 
-    FUDPStatePacket() : ErrorX(0), ErrorY(0), VX(0), VY(0), BulletDistance(0), TargetDistance(0), ShootCooldown(0) {}
+    FUDPStatePacket() : ErrorX(0), ErrorY(0), VX(0), VY(0), BulletDistance(0), TargetDistance(0) {}//, ShootCooldown(0) {}
 };
 
 struct FUDPActionPacket
@@ -47,8 +47,8 @@ public:
     virtual void Initialize(FSubsystemCollectionBase& Collection) override;
     virtual void Deinitialize() override;
 
-    bool SendData(FString& Message);
-    bool ReceiveData(FString& OutMessage);
+    //bool SendData(FString& Message);
+    //bool ReceiveData(FString& OutMessage);
 
     bool SendBinaryData(const FUDPStatePacket& Packet);
     bool ReceiveBinaryAction(FUDPActionPacket& OutAction);

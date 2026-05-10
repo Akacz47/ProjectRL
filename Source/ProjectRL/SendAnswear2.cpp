@@ -51,87 +51,6 @@ float GetPitchDelta3(const FVector& TurretLocation, const FVector& TurretForward
     return Angle * Sign; // radiany (+ w górê, – w dó³)
 }
 
-//EBTNodeResult::Type USendAnswear2::ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory)
-//{
-//    CachedOwnerComp = &OwnerComp;
-//
-//    UWorld* World = GetWorld();
-//
-//    UGameInstance* GameInstance = World->GetGameInstance();
-//    UUDPSubsystem* UDPSubsystem = GameInstance ? GameInstance->GetSubsystem<UUDPSubsystem>() : nullptr;
-//    FTimerDelegate TimerDelegate;
-//    TimerDelegate.BindLambda([this, World, UDPSubsystem]()
-//        {
-//            UBlackboardComponent* BB = CachedOwnerComp->GetBlackboardComponent();
-//            //World->GetTimerManager().ClearTimer(TimerHandle_CheckUDP);
-//
-//            AAIController* AI = CachedOwnerComp->GetAIOwner();
-//            if (!AI) {
-//                World->GetTimerManager().ClearTimer(TimerHandle_CheckUDP);
-//                FinishLatentTask(*CachedOwnerComp.Get(), EBTNodeResult::Failed);
-//                return;
-//            } 
-//
-//            APawn* Pawn = AI->GetPawn();
-//            if (!Pawn) {
-//                World->GetTimerManager().ClearTimer(TimerHandle_CheckUDP);
-//                FinishLatentTask(*CachedOwnerComp.Get(), EBTNodeResult::Failed);
-//                return;
-//            }
-//
-//            FRotator TurretRotation = Pawn->GetActorRotation();
-//
-//            AActor* AttackTarget = Cast<AActor>(BB->GetValueAsObject("AttackTarget"));
-//
-//            ///////////////////
-//            float BulletDistance = BB->GetValueAsFloat("BulletDistance");
-//
-//            FString OutMessage;
-//
-//            FVector ForwardVector = BB->GetValueAsVector("ForwardVector");
-//            FVector TurretLocation = Pawn->GetActorLocation();
-//            if (!AttackTarget) {
-//                //FinishLatentTask(*CachedOwnerComp.Get(), EBTNodeResult::Succeeded);
-//                //UE_LOG(LogTemp, Log, TEXT("Brak attack target"));
-//                return;
-//            }
-//            FVector AttackTargetLocation = AttackTarget->GetActorLocation();
-//            float DeltaTheta = GetAngleDeltaToTarget3(TurretLocation, ForwardVector, AttackTargetLocation);
-//            float SinDelta = FMath::Sin(DeltaTheta);
-//
-//            float PitchDelta = GetPitchDelta3(TurretLocation, ForwardVector, AttackTargetLocation);
-//            float NormalizedPitch = PitchDelta / (PI / 2.0f);
-//
-//            FVector RawVel = AttackTarget->GetVelocity();
-//            //////important!!!
-//            float NormVelX = RawVel.X * 0.001f; // * 0.0001f //0.001f
-//            float NormVelY = RawVel.Y * 0.001f; // * 0.0001f //0.001f
-//
-//            OutMessage = FString::Printf(
-//                TEXT("{\"error_x\":%.2f, \"error_y\":%.2f, \"v_x\":%.2f, \"v_y\":%.2f, \"bullet_distance\":%.2f}"),
-//                SinDelta,
-//                NormalizedPitch,
-//                NormVelX / 2.f,
-//                NormVelY / 2.f,
-//                BulletDistance
-//            );
-//
-//            UDPSubsystem->SendData(OutMessage);
-//            World->GetTimerManager().ClearTimer(TimerHandle_CheckUDP);
-//            FinishLatentTask(*CachedOwnerComp.Get(), EBTNodeResult::Succeeded);
-//        });
-//
-//    World->GetTimerManager().SetTimer(
-//        TimerHandle_CheckUDP,
-//        TimerDelegate,
-//        0.0001f, // 10ms - 0.01
-//        true
-//    );
-//
-//    return EBTNodeResult::InProgress;
-//}
-
-
 EBTNodeResult::Type USendAnswear2::ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory)
 {
     // Czyœcimy flagi/stan jeœli to konieczne
@@ -199,7 +118,7 @@ void USendAnswear2::TickTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemor
     //UDPSubsystem->SendData(OutMessage);
 
 
-    float MaxCD = 1.0f; // Przyk³ad: 2 sekundy
+    float MaxCD = 0.25f; // 1.0f
     float ShootCooldown = BB->GetValueAsFloat("ShootCooldown");
     float CurrentTime = World->GetTimeSeconds();
     float ReadyStatus = FMath::Clamp(1.0f - ((ShootCooldown - CurrentTime) / MaxCD), 0.0f, 1.0f);
@@ -211,7 +130,7 @@ void USendAnswear2::TickTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemor
     Packet.VY = NormVelY;
     Packet.BulletDistance = BulletDistance;
     Packet.TargetDistance = FVector::Dist(TurretLocation, AttackTargetLocation);
-    Packet.ShootCooldown = ReadyStatus; // Wysy³amy status 0-1
+    //Packet.ShootCooldown = ReadyStatus; // Wysy³amy status 0-1
 
     UDPSubsystem->SendBinaryData(Packet);
 
@@ -221,7 +140,7 @@ void USendAnswear2::TickTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemor
 
     if (ShootCooldown <= CurrentTime) {
         BB->SetValueAsBool(TEXT("ShouldShoot"), false);
-        BB->SetValueAsFloat(TEXT("ShootCooldown"), CurrentTime + 1.0f);
+        BB->SetValueAsFloat(TEXT("ShootCooldown"), CurrentTime + MaxCD);
         //UFunction* ShootFunc = Pawn->FindFunction(FName("Shoot"));
         //Pawn->ProcessEvent(ShootFunc, nullptr);
 

@@ -34,7 +34,7 @@ void ABullet::NotifyActorBeginOverlap(AActor* OtherActor)
 	//	GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Cyan, msg);
 	//}
 
-    if (EnemyActor && TowerAIController) { // For AI
+    if (EnemyActor && TowerAIController) { // Dla SI
 		if (OtherActor == EnemyActor)
 		{
 			UE_LOG(LogTemp, Warning, TEXT("Bullet hit Enemy."));
@@ -46,7 +46,7 @@ void ABullet::NotifyActorBeginOverlap(AActor* OtherActor)
 			TowerAIController->SetBulletDistance(Distance);
 		}
     }
-	else { // For player
+	else { // Dla gracza
 		if (OtherActor->ActorHasTag("Enemy")) {
 			UE_LOG(LogTemp, Warning, TEXT("Bullet hit Enemy."));
 			OtherActor->Destroy();

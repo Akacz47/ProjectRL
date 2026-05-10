@@ -190,7 +190,7 @@ EBTNodeResult::Type USendAnswear::ExecuteTask(UBehaviorTreeComponent& OwnerComp,
                 }
                 
 
-                UDPSubsystem->SendData(OutMessage);
+                //UDPSubsystem->SendData(OutMessage);
                 FinishLatentTask(*CachedOwnerComp.Get(), EBTNodeResult::Succeeded);
             }
         });

@@ -11,7 +11,6 @@
 
 UBTT_Predict::UBTT_Predict()
 {
-    // Inicjalizujemy wskaŸniki na nullptr
     OrtEnv = nullptr;
     OrtSession = nullptr;
     SessionOptions = nullptr;
@@ -104,28 +103,17 @@ void UBTT_Predict::InitializeONNX()
 {
     if (OrtSession) return; // Ju¿ zainicjalizowano
 
-    //try {
     OrtEnv = new Ort::Env(ORT_LOGGING_LEVEL_WARNING, "SAC-Turret-Session");
 
     SessionOptions = new Ort::SessionOptions();
     SessionOptions->SetIntraOpNumThreads(1);
     SessionOptions->SetGraphOptimizationLevel(GraphOptimizationLevel::ORT_ENABLE_EXTENDED);
-    //SessionOptions.SetIntraOpNumThreads(1);
-    //SessionOptions.SetGraphOptimizationLevel(GraphOptimizationLevel::ORT_ENABLE_EXTENDED);
-    // 
-    //SessionOptions.SetGraphOptimizationLevel(GraphOptimizationLevel::ORT_ENABLE_ALL); // tu nie odkomentowywac
 
-    // U¿yj œcie¿ki bezwzglêdnej lub FPaths::ProjectContentDir()
-    const wchar_t* ModelPath = L"E:/UE/Projekty/ProjectRL/Content/Models/sac_actor2.onnx";
+    const wchar_t* ModelPath = L"E:/UE/Projekty/ProjectRL/Content/Models/sac_actor_simple.onnx";
 
-    //OrtSession = new Ort::Session(*OrtEnv, ModelPath, SessionOptions);
     OrtSession = new Ort::Session(*OrtEnv, ModelPath, *SessionOptions);
 
     UE_LOG(LogTemp, Log, TEXT("ONNX Session successfully initialized."));
-    //}
-    //catch (const std::exception& e) {
-    //    UE_LOG(LogTemp, Error, TEXT("Failed to initialize ONNX: %s"), UTF8_TO_TCHAR(e.what()));
-    //}
 }
 
 EBTNodeResult::Type UBTT_Predict::ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory)
@@ -163,11 +151,9 @@ EBTNodeResult::Type UBTT_Predict::ExecuteTask(UBehaviorTreeComponent& OwnerComp,
     }
 
     float BulletDistance = BB->GetValueAsFloat("BulletDistance");
-    float PrevBulletDistance = BB->GetValueAsFloat("PrevBulletDistance");
 
     UArrowComponent* Arrow = Pawn->FindComponentByClass<UArrowComponent>();
     FVector ForwardVector = Arrow->GetForwardVector();
-    //FVector ForwardVector = BB->GetValueAsVector("ForwardVector");
     FVector TurretLocation = Pawn->GetActorLocation();
     if (!AttackTarget) {
         return EBTNodeResult::Succeeded;
@@ -179,103 +165,42 @@ EBTNodeResult::Type UBTT_Predict::ExecuteTask(UBehaviorTreeComponent& OwnerComp,
     float PitchDelta = GetPitchDelta2(TurretLocation, ForwardVector, AttackTargetLocation);
     float NormalizedPitch = PitchDelta / (PI / 2.0f);
 
-    float CurrentTime = GetWorld()->GetTimeSeconds();
-    float DeltaTime = CurrentTime - LastTimestamp;
-    FVector TargetVel = FVector::ZeroVector;
-    if (DeltaTime > 0)
-    {
-        TargetVel = (AttackTargetLocation - LastTargetLocation) / DeltaTime;
-    }
-
-    // Normalizacja prêdkoœci (zak³adamy max prêdkoœæ 600 j/s -> skala ok. -1 do 1)
-    //float NormVelX = FMath::Clamp(TargetVel.X / 450.0f, -1.0f, 1.0f);
-    //float NormVelY = FMath::Clamp(TargetVel.Y / 450.0f, -1.0f, 1.0f);
-    //float NormVelX = TargetVel.X * 0.0001f;
-    //float NormVelY = TargetVel.Y * 0.0001f;
-
     FVector RawVel = AttackTarget->GetVelocity();
-    //float MaxSpeed = 18000.0f; // Za³ó¿my, ¿e Twój przeciwnik max tyle wyci¹ga
-    //float NormVelX = FMath::Clamp(RawVel.X / MaxSpeed, -1.0f, 1.0f);
-    //float NormVelY = FMath::Clamp(RawVel.Y / MaxSpeed, -1.0f, 1.0f);
 
     //////important!!!
-    float NormVelX = RawVel.X * 0.001f; // * 0.0001f //0.001f
-    float NormVelY = RawVel.Y * 0.001f; // * 0.0001f //0.001f
+    float NormVelX = RawVel.X * 0.001f;
+    float NormVelY = RawVel.Y * 0.001f;
 
-    // Zapisujemy stan dla nastêpnej klatki
-    LastTargetLocation = AttackTargetLocation;
-    LastTimestamp = CurrentTime;
-
-    //float hitTarget = 0.0f;
-    //if (BulletDistance == 0.0f) {
-    //    hitTarget = 1.0f;
-    //}
+    //FVector LocalVel = Pawn->GetActorTransform().InverseTransformVectorNoScale(RawVel);
+    //NormVelX = LocalVel.X * 0.001f;
+    //NormVelY = LocalVel.Y * 0.001f;
 
     InitializeONNX();
     if (!OrtSession) return EBTNodeResult::Failed;
-    // ----------------------------
-    // 1. ONNX: Init œrodowiska
-    // ----------------------------
-    //Ort::Env env(ORT_LOGGING_LEVEL_WARNING, "SAC-Test");
-    //Ort::SessionOptions session_options;
-    //session_options.SetIntraOpNumThreads(1);
-    //session_options.SetGraphOptimizationLevel(GraphOptimizationLevel::ORT_ENABLE_EXTENDED);
-
-    // ----------------------------
-    // 2. Œcie¿ka do modelu
-    // ----------------------------
-    //const wchar_t* model_path_w = L"E:/UE/Projekty/ProjectRL/Content/Models/sac_actor2.onnx";
-    //FString model_path(model_path_w);
-
-    //if (!FPaths::FileExists(model_path))
-    //{
-    //    UE_LOG(LogTemp, Error, TEXT("Model nie istnieje: %s"), *model_path);
-    //    return EBTNodeResult::Failed;
-    //}
-
-    // ----------------------------
-    // 3. Wczytanie modelu
-    // ----------------------------
-    //Ort::Session session(env, model_path_w, session_options);
-
-    //UE_LOG(LogTemp, Warning, TEXT("Zaladowano model SAC-Actor"));
-
-    // ----------------------------
-    // 4. Przygotuj przyk³adow¹ obserwacjê:
-    //    [x, y, hit]  takie jak w œrodowisku Python
-    // ----------------------------
-    //float x = 0.25f;
-    //float y = -0.6f;
-    //float hit = 0.0f;
-
-    //std::vector<float> input_tensor_values = { SinDelta, NormalizedPitch};
 
     // Normalizacja do zakresu -1, 1 (przyk³adowo dla Yaw)
     float CurrentYawNorm = (TurretRotation.Yaw - 90.0f) / 85.0f;
     float CurrentPitchNorm = (TurretRotation.Pitch + 42.5f) / 42.5f;
 
-    float MaxCD = 1.0f; // Przyk³ad: 2 sekundy
-    float ShootCooldown = BB->GetValueAsFloat("ShootCooldown");
-    float ReadyStatus = FMath::Clamp(1.0f - ((ShootCooldown - World->GetTimeSeconds()) / MaxCD), 0.0f, 1.0f);
+    //float MaxCD = 1.0f; // 1.0f
+    //float ShootCooldown = BB->GetValueAsFloat("ShootCooldown");
+    //float ReadyStatus = FMath::Clamp(1.0f - ((ShootCooldown - World->GetTimeSeconds()) / MaxCD), 0.0f, 1.0f);
 
     std::vector<float> input_tensor_values = {
         SinDelta,
         NormalizedPitch,
-        NormVelX,// /2.f,
-        NormVelY,// /2.f //,
+        NormVelX /2.f,
+        NormVelY /2.f,
         //CurrentYawNorm,
         //CurrentPitchNorm
  
-        //float(FVector::Dist(TurretLocation, AttackTargetLocation) / 5000.0f)
-        1.0f - exp(float( - FVector::Dist(TurretLocation, AttackTargetLocation) / 4500.0)),
-        ReadyStatus
+        float(FVector::Dist(TurretLocation, AttackTargetLocation) / 5000.0f)
+        //1.0f - exp(float( - FVector::Dist(TurretLocation, AttackTargetLocation) / 4500.0)), // 4500
+        //ReadyStatus
     };
 
-    std::vector<int64_t> input_shape = { 1, 6 };  // batch=1, dim=4
+    std::vector<int64_t> input_shape = { 1, 5 };  // batch=1, dim=5
 
-    // ----------------------------
-    // 5. Stwórz tensor wejœciowy
-    // ----------------------------
     Ort::MemoryInfo memory_info =
         Ort::MemoryInfo::CreateCpu(OrtArenaAllocator, OrtMemTypeDefault);
 
@@ -287,62 +212,43 @@ EBTNodeResult::Type UBTT_Predict::ExecuteTask(UBehaviorTreeComponent& OwnerComp,
         input_shape.size()
     );
 
-    // ----------------------------
-    // 6. Nazwy wejœæ/wyjœæ (z torch.onnx.export)
-    // ----------------------------
     const char* input_names[] = { "obs" };
     const char* output_names[] = { "action" };
 
-    // ----------------------------
-    // 7. Wykonaj predykcjê
-    // ----------------------------
-    //auto output_tensors = session.Run(
-    //    Ort::RunOptions{ nullptr },
-    //    input_names,
-    //    &input_tensor,
-    //    1,
-    //    output_names,
-    //    1
-    //);
     auto output_tensors = OrtSession->Run(Ort::RunOptions{ nullptr }, input_names, &input_tensor, 1, output_names, 1);
-
-    // SAC Actor zwraca wektor 2D: [rotateLR, rotateUD]
     float* action = output_tensors.front().GetTensorMutableData<float>();
 
-    float sensitivity = 1.0f; //0.05f, 0.01f
-    float rotateUD = action[0] * sensitivity;// * 42.5f; //*41.0f
-    float rotateLR = action[1] * sensitivity;// * 85.0f; //*90.0f
-
-    // ----------------------------
-    // 8. Denormalizacja
-    // ----------------------------
-    //rotateLR *= 12.f; //40 12.f
-    //rotateUD *= 6.28f; //30 6.f ew. 7.f
-
-    // ----------------------------
-    // 9. Logowanie wyniku
-    // ----------------------------
+    float rotateLR = action[0];
+    float rotateUD = action[1];
 
     UE_LOG(LogTemp, Warning, TEXT("-----------------------------------------------------"));
     UE_LOG(LogTemp, Warning, TEXT("Pitch i Yaw : % f   % f"), NormalizedPitch, SinDelta);
-    UE_LOG(LogTemp, Warning, TEXT("Predykcja SAC : rotateLR = % f   rotateUD = % f"), rotateLR, rotateUD);
+    UE_LOG(LogTemp, Warning, TEXT("Predykcja SAC : rotateUD = % f   rotateLR = % f"), rotateUD, rotateLR);
     UE_LOG(LogTemp, Warning, TEXT("TargetVel.X = % f  TargetVel.Y = % f"), NormVelX, NormVelY);
     UE_LOG(LogTemp, Warning, TEXT("BulletDistance = % f"), BulletDistance);
     UE_LOG(LogTemp, Warning, TEXT("TargetDistance = % f"), FVector::Dist(TurretLocation, AttackTargetLocation));
-    //if (BulletDistance != PrevBulletDistance) {
-    //    
-    //}
+
+    //UE_LOG(LogTemp, Warning, TEXT("% f, % f, % f, % f, % f, % f"), SinDelta, NormalizedPitch, NormVelX, NormVelY, 1.0f - exp(float(-FVector::Dist(TurretLocation, AttackTargetLocation) / 4500.0)), ReadyStatus);
     
-
-    // Mo¿esz tu zapisaæ do blackboard albo ustawiæ ruch
-    // BlackBoard->SetValueAsFloat("RotateLR", rotateLR);
     FName Key_TurretRotation = "TurretRotation";
-
-    FRotator NewRot(rotateLR, rotateUD, 0.f);
-    //if (rotateLR == 0.f && rotateUD == 0.f) { //do resetu
-    //    NewRot = FRotator(rotateUD, rotateLR, -1.0f);
-    //}
+    FRotator NewRot(rotateUD, rotateLR, 0.f); //pitch, yaw, roll
     BB->SetValueAsRotator(Key_TurretRotation, NewRot);
+
+    //#pragma pack(push, 1) // Wymusza brak paddingu
+    //struct FFunctionParams
+    //{
+    //    double XAxis;
+    //    double YAxis;
+    //};
+    //#pragma pack(pop)
+    //FFunctionParams Params;
+    //Params.XAxis = rotateLR;
+    //Params.YAxis = rotateUD;
+    //UFunction* Func = Pawn->FindFunction(FName("AimPlayer"));
+    //if (Func)
+    //{
+    //    Pawn->ProcessEvent(Func, &Params);
+    //}
 
     return EBTNodeResult::Succeeded;
 }
