@@ -1,4 +1,3 @@
-# unreal_socket_client.py
 import socket
 import struct
 

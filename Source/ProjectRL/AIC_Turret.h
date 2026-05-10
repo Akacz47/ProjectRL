@@ -10,9 +10,6 @@
 
 class ABullet;
 
-/**
- * 
- */
 UCLASS()
 class PROJECTRL_API AAIC_Turret : public AAIController
 {
@@ -20,15 +17,22 @@ class PROJECTRL_API AAIC_Turret : public AAIController
 public:
 	UFUNCTION(BlueprintCallable, Category = "Blackboard")
 	void SetBulletDistance(float Distance);
-	void SetShoudShootCpp(bool val);
 
-	virtual void Tick(float DeltaTime) override;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "SI")
-	AActor* AttackTarget2 = nullptr;
 	void SendAnswear();
-	float bulletDistance = -1.0f;
+	virtual void Tick(float DeltaTime) override;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "SI")
+	AActor* AttackTarget = nullptr;
+	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Config")
 	TSubclassOf<ABullet> BulletClass;
+	
 	float ShootCooldown = 0.0f;
+	float bulletDistance = -1.0f;
+	
+private:
 	bool training = false;
+
+	float GetAngleDeltaToTarget(const FVector& TurretLocation, const FVector& TurretForward, const FVector& TargetLocation);
+	float GetPitchDelta(const FVector& TurretLocation, const FVector& TurretForward, const FVector& TargetLocation);
 };

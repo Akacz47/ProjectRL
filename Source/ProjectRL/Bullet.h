@@ -25,9 +25,6 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
-	//UFUNCTION()
-	//void OnActorOverlap(AActor* OverlappedActor, AActor* OtherActor);
-
 	virtual void NotifyActorBeginOverlap(AActor* OtherActor) override;
 
 	virtual void Tick(float DeltaTime) override;
@@ -37,15 +34,13 @@ public:
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
-	/** Referencja do przeciwnika, opcjonalna */
 	UPROPERTY()
 	AActor* EnemyActor = nullptr;
 
-	/** Referencja do AI Controller wie¿yczki, opcjonalna */
 	UPROPERTY()
 	AAIC_Turret* TowerAIController = nullptr;
 
-	/** Setter do ustawiania referencji przy spawn */
+	// Setter do ustawiania referencji przy spawn
 	UFUNCTION(BlueprintCallable, Category = "Bullet")
 	void InitBullet(AActor* InEnemyActor, AAIC_Turret* InAIController = nullptr);
 

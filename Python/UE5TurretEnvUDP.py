@@ -13,8 +13,8 @@ class UE5TurretEnvUDP(gym.Env):
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         self.sock.bind(("127.0.0.1", 8000))
 
-        # OBSERWACJA (4 wartości): 
-        # [error_x, error_y, target_vel_x (v_x), target_vel_y (v_y)] # ew. turret distance od 0 do 1
+        # Obserwacja (5 wartości): 
+        # [error_x, error_y, target_vel_x (v_x), target_vel_y (v_y), turret distance]
         self.observation_space = spaces.Box(
             low=np.array([-1.0, -1.0, -1.0, -1.0, 0.0], dtype=np.float32),
             high=np.array([1.0, 1.0, 1.0, 1.0, 1.0], dtype=np.float32),

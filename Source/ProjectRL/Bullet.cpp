@@ -1,6 +1,4 @@
 // Fill out your copyright notice in the Description page of Project Settings.
-
-
 #include "Bullet.h"
 
 // Sets default values
@@ -8,14 +6,12 @@ ABullet::ABullet()
 {
  	// Set this pawn to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
-
 }
 
 // Called when the game starts or when spawned
 void ABullet::BeginPlay()
 {
 	Super::BeginPlay();
-	//this->OnActorBeginOverlap.AddDynamic(this, &ABullet::OnActorOverlap);
 }
 
 void ABullet::InitBullet(AActor* InEnemyActor, AAIC_Turret* InAIController)
@@ -27,12 +23,6 @@ void ABullet::InitBullet(AActor* InEnemyActor, AAIC_Turret* InAIController)
 void ABullet::NotifyActorBeginOverlap(AActor* OtherActor)
 {
 	Super::NotifyActorBeginOverlap(OtherActor);
-
-	//if (GEngine)
-	//{
-	//	FString msg = FString::Printf(TEXT("Overlap"));
-	//	GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Cyan, msg);
-	//}
 
     if (EnemyActor && TowerAIController) { // Dla SI
 		if (OtherActor == EnemyActor)
@@ -53,21 +43,6 @@ void ABullet::NotifyActorBeginOverlap(AActor* OtherActor)
 		}
 	}
 
-	// Test
-	//if (EnemyActor) {
-	//	if (OtherActor == EnemyActor)
-	//	{
-	//		UE_LOG(LogTemp, Warning, TEXT("Bullet hit Enemy"));
-	//	}
-
-	//	float Distance = FVector::Distance(GetActorLocation(), EnemyActor->GetActorLocation());
-	//	if (GEngine)
-	//	{
-	//		FString msg = FString::Printf(TEXT("Distance = %f"), Distance);
-	//		GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Cyan, msg);
-	//	}
-
-	//}
 	OnBulletDestroyed.Broadcast();
     Destroy();
 }
