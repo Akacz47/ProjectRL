@@ -38,7 +38,7 @@ void ABullet::NotifyActorBeginOverlap(AActor* OtherActor)
 {
 	Super::NotifyActorBeginOverlap(OtherActor);
 
-    if (EnemyActor && TowerAIController) { // Dla SI
+    if (EnemyActor && TowerAIController) { // Dla AI
 		if (OtherActor == EnemyActor)
 		{
 			TowerAIController->SetBulletDistance(0.0f);
