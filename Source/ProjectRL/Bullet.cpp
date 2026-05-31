@@ -20,6 +20,20 @@ void ABullet::InitBullet(AActor* InEnemyActor, AAIC_Turret* InAIController)
 	TowerAIController = InAIController;
 }
 
+void ABullet::UpdateUi(bool UpdateSiCounter)
+{
+	APlayerController* PC = UGameplayStatics::GetPlayerController(GetWorld(), 0);
+	UFunction* Func = PC->FindFunction(FName("UpdateWidgetCounter"));
+	struct FFunctionParams
+	{
+		bool bValue;
+	};
+
+	FFunctionParams Params;
+	Params.bValue = UpdateSiCounter;
+	PC->ProcessEvent(Func, &Params);
+}
+
 void ABullet::NotifyActorBeginOverlap(AActor* OtherActor)
 {
 	Super::NotifyActorBeginOverlap(OtherActor);
@@ -27,9 +41,9 @@ void ABullet::NotifyActorBeginOverlap(AActor* OtherActor)
     if (EnemyActor && TowerAIController) { // Dla SI
 		if (OtherActor == EnemyActor)
 		{
-			UE_LOG(LogTemp, Warning, TEXT("Bullet hit Enemy."));
 			TowerAIController->SetBulletDistance(0.0f);
 			EnemyActor->Destroy();
+			UpdateUi(true);
 		}
 		else {
 			float Distance = FVector::Distance(GetActorLocation(), EnemyActor->GetActorLocation());
@@ -38,8 +52,8 @@ void ABullet::NotifyActorBeginOverlap(AActor* OtherActor)
     }
 	else { // Dla gracza
 		if (OtherActor->ActorHasTag("Enemy")) {
-			UE_LOG(LogTemp, Warning, TEXT("Bullet hit Enemy."));
 			OtherActor->Destroy();
+			UpdateUi(false);
 		}
 	}
 

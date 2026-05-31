@@ -1,7 +1,7 @@
 import torch
 from stable_baselines3 import SAC
 
-MODEL_TYPE = 'UDP' # UDP or SIMPLE
+MODEL_TYPE = 'SIMPLE' # UDP or SIMPLE
 
 if MODEL_TYPE == 'UDP':
     model = SAC.load("sac_turret_model_udp.zip", device="cpu")

@@ -63,7 +63,7 @@ class UE5TurretEnvUDP(gym.Env):
             obs["target_distance"]
         ], dtype=np.float32)
 
-        # --- 3. NAGRODA ---
+        # Nagroda
         distance = np.linalg.norm([obs["error_x"], obs["error_y"]])
         reward = -distance * 3.0
 

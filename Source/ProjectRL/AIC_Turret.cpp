@@ -115,9 +115,6 @@ void AAIC_Turret::SendAnswear()
     float NormVelX = LocalVel.X * 0.001f; // Prêdkoœæ przód-ty³
     float NormVelY = LocalVel.Y * 0.001f; // Prêdkoœæ lewo-prawo
 
-    float MaxCD = 0.25f;
-    float CurrentTime = World->GetTimeSeconds();
-
     FUDPStatePacket Packet;
     Packet.ErrorX = SinDelta;
     Packet.ErrorY = NormalizedPitch;
@@ -127,6 +124,9 @@ void AAIC_Turret::SendAnswear()
     Packet.TargetDistance = float(FVector::Dist(TurretLocation, AttackTargetLocation) / 5000.0f);
 
     UDPSubsystem->SendBinaryData(Packet);
+	
+	float MaxCD = 0.25f;
+    float CurrentTime = World->GetTimeSeconds();
 
     if (ShootCooldown <= CurrentTime) {
         ShootCooldown = CurrentTime + MaxCD;

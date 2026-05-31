@@ -25,7 +25,7 @@ private:
 	Ort::Session* OrtSession;
 	Ort::SessionOptions* SessionOptions;
 
-	FString loaded_model = "UDP"; // UDP or SIMPLE
+	FString loaded_model = "SIMPLE"; // UDP or SIMPLE
 	float GetAngleDeltaToTarget(const FVector& TurretLocation, const FVector& TurretForward, const FVector& TargetLocation);
 	float GetPitchDelta(const FVector& TurretLocation, const FVector& TurretForward, const FVector& TargetLocation);
 

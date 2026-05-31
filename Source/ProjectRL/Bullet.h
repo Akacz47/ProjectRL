@@ -5,6 +5,8 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Pawn.h"
 #include "AIC_Turret.h"
+#include "Kismet/GameplayStatics.h"
+#include "GameFramework/PlayerController.h"
 #include "Bullet.generated.h"
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnBulletDestroyed);
@@ -13,6 +15,8 @@ UCLASS()
 class PROJECTRL_API ABullet : public APawn
 {
 	GENERATED_BODY()
+
+	void UpdateUi(bool UpdateSiCounter);
 
 public:
 	// Sets default values for this pawn's properties

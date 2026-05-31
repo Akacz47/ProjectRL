@@ -84,11 +84,12 @@ void UBTT_Predict::InitializeONNX()
     SessionOptions->SetGraphOptimizationLevel(GraphOptimizationLevel::ORT_ENABLE_EXTENDED);
 
     const wchar_t* ModelPath;
-    if (loaded_model == "SIMPLE")
+    if (loaded_model == "SIMPLE") {
         ModelPath = L"E:/UE/Projekty/ProjectRL/Content/Models/sac_actor_simple.onnx";
-    else
+    }
+    else {
         ModelPath = L"E:/UE/Projekty/ProjectRL/Content/Models/sac_actor_udp.onnx";
-
+    }
     OrtSession = new Ort::Session(*OrtEnv, ModelPath, *SessionOptions);
 
     UE_LOG(LogTemp, Log, TEXT("ONNX Session successfully initialized."));
